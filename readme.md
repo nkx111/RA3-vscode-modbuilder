@@ -24,3 +24,8 @@
 
 > 注1：mod源代码的存放位置、编译出来的mod文件位置均和sdk相同  
 > 注2：本项目不提供编译本身所需的exe文件，因此仍需要安装sdk、安装mod地编。 
+
+##### 效果展示
+![](doc/screenshot_1.png)
+
+![](doc/screenshot_2.png)
