@@ -1,0 +1,482 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Step 1: Clear Built Mod",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "(@echo off) & (cd /D \"${workspaceFolder}\\..\\..\") & (for /R \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\" %I in (\"*.*\") do (if not \"%~xI\"==\".asset\" (del \"%I\" /F /Q)))"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Step 2: Clear Cache",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "(@echo off) & (cd /D \"${workspaceFolder}\\..\\..\") & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\builtmods\" (rd \"${workspaceFolder}\\..\\..\\builtmods\\builtmods\" /S /Q)) & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\cache\" (rd \"${workspaceFolder}\\..\\..\\builtmods\\cache\" /S /Q)) & (for /R \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\" %I in (\"*.asset\") do (del \"%I\" /F /Q)) & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\binaryassetbuilder.sessioncache.xml\" (del \"${workspaceFolder}\\..\\..\\builtmods\\binaryassetbuilder.sessioncache.xml\" /F /Q)) & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\binaryassetbuilder.sessioncache.xml.old\" (del \"${workspaceFolder}\\..\\..\\builtmods\\binaryassetbuilder.sessioncache.xml.old\" /F /Q)) & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\binaryassetbuilder.sessioncache.xml.deflate\" (del \"${workspaceFolder}\\..\\..\\builtmods\\binaryassetbuilder.sessioncache.xml.deflate\" /F /Q)) & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\binaryassetbuilder.sessioncache.xml.deflate.old\" (del \"${workspaceFolder}\\..\\..\\builtmods\\binaryassetbuilder.sessioncache.xml.deflate.old\" /F /Q)) & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\stringhashes.xml\" (del \"${workspaceFolder}\\..\\..\\builtmods\\stringhashes.xml\" /F /Q))"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Step 2.5: Generate AptUI XML",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "${workspaceFolder}\\.vscode\\generate_aptui_xml.bat"
+            ],
+            "options": {
+                "env": {
+                    "WORKSPACE_FOLDER": "${workspaceFolder}",
+                    "WORKSPACE_FOLDER_BASENAME": "${workspaceFolderBasename}"
+                }
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Step 3: Build AptUI",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "(@echo off) & (cd /D \"${workspaceFolder}\\..\\..\") & (for %I in (\"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\aptui\\*\") do (del \"%I\" /F /Q)) & (for %I in (\"${workspaceFolder}\\data\\aptui\\*.xml\") do (\"${workspaceFolder}\\..\\..\\tools\\binaryassetbuilder.exe\" \"%I\" /od:\"${workspaceFolder}\\..\\..\\builtmods\" /iod:\"${workspaceFolder}\\..\\..\\builtmods\" /csc:false /ls:true /osh:false /pc:true /res:true /slowclean:true /ss:true /art:\".;.\\Mods\\${workspaceFolderBasename}\\Art;.\\Mods;.\\Art\" /audio:\".;.\\Mods\\${workspaceFolderBasename}\\Audio;.\\Mods;.\\Audio\" /data:\".;.\\Mods\\${workspaceFolderBasename}\\Data;.\\Mods;.\\SageXml\" & if exist \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\aptui\\%~nI.manifest\" (echo. >\"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\aptui\\%~nI.version\")))"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "Step 2.5: Generate AptUI XML"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                {
+                    "owner": "cpp",
+                    "fileLocation": [
+                        "absolute"
+                    ],
+                    "source": "gcc",
+                    "pattern": {
+                        "regexp": ".*(Critical): (.+) in '(.+)'",
+                        "file": 3,
+                        "severity": 1,
+                        "message": 2
+                    }
+                },
+                {
+                    "owner": "cpp",
+                    "fileLocation": [
+                        "absolute"
+                    ],
+                    "source": "gcc",
+                    "pattern": {
+                        "regexp": ".*(Warning|Error): (Input.+) \\(referenced from file://(.+)\\)",
+                        "file": 3,
+                        "severity": 1,
+                        "message": 2
+                    },
+                },
+                {
+                    "owner": "cpp",
+                    "fileLocation": [
+                        "absolute"
+                    ],
+                    "source": "gcc",
+                    "pattern": {
+                        "regexp": ".*(Warning): (Unknown.+) in 'file://(.+)'",
+                        "file": 3,
+                        "severity": 1,
+                        "message": 2
+                    },
+                }
+            ]
+        },
+        {
+            "label": "Step 4: Build Global Data",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "(@echo off) & (cd /D \"${workspaceFolder}\\..\\..\") & (for %I in (\"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\additionalmaps\\mapmetadata_*\") do (del \"%I\" /F /Q)) & (for %I in (\"${workspaceFolder}\\data\\additionalmaps\\mapmetadata_*.xml\") do (\"${workspaceFolder}\\..\\..\\tools\\binaryassetbuilder.exe\" \"%I\" /od:\"${workspaceFolder}\\..\\..\\builtmods\" /iod:\"${workspaceFolder}\\..\\..\\builtmods\" /csc:false /ls:true /osh:false /pc:true /res:true /slowclean:true /ss:true /art:\".;.\\Mods\\${workspaceFolderBasename}\\Art;.\\Mods;.\\Art\" /audio:\".;.\\Mods\\${workspaceFolderBasename}\\Audio;.\\Mods;.\\Audio\" /data:\".;.\\Mods\\${workspaceFolderBasename}\\Data;.\\Mods;.\\SageXml\"))"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": [
+                {
+                    "owner": "cpp",
+                    "fileLocation": [
+                        "absolute"
+                    ],
+                    "source": "gcc",
+                    "pattern": {
+                        "regexp": ".*(Critical): (.+) in '(.+)'",
+                        "file": 3,
+                        "severity": 1,
+                        "message": 2
+                    }
+                },
+                {
+                    "owner": "cpp",
+                    "fileLocation": [
+                        "absolute"
+                    ],
+                    "source": "gcc",
+                    "pattern": {
+                        "regexp": ".*(Warning|Error): (Input.+) \\(referenced from file://(.+)\\)",
+                        "file": 3,
+                        "severity": 1,
+                        "message": 2
+                    },
+                },
+                {
+                    "owner": "cpp",
+                    "fileLocation": [
+                        "absolute"
+                    ],
+                    "source": "gcc",
+                    "pattern": {
+                        "regexp": ".*(Warning): (Unknown.+) in 'file://(.+)'",
+                        "file": 3,
+                        "severity": 1,
+                        "message": 2
+                    },
+                }
+            ]
+        },
+        {
+            "label": "Step 5: Build Basic Data",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "(@echo off) & (cd /D \"${workspaceFolder}\\..\\..\") & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.bin\" (del \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.bin\" /F /Q)) & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.imp\" (del \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.imp\" /F /Q)) & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.manifest\" (del \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.manifest\" /F /Q)) & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.relo\" (del \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.relo\" /F /Q)) & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.version\" (del \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.version\" /F /Q)) & (for %I in (\"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod_*\") do (del \"%I\" /F /Q)) & (\"${workspaceFolder}\\..\\..\\tools\\binaryassetbuilder.exe\" \"${workspaceFolder}\\data\\mod.xml\" /od:\"${workspaceFolder}\\..\\..\\builtmods\" /iod:\"${workspaceFolder}\\..\\..\\builtmods\" /csc:false /ls:true /osh:false /pc:true /res:true /slowclean:true /ss:true /art:\".;.\\Mods\\${workspaceFolderBasename}\\Art;.\\Mods;.\\Art\" /audio:\".;.\\Mods\\${workspaceFolderBasename}\\Audio;.\\Mods;.\\Audio\" /data:\".;.\\Mods\\${workspaceFolderBasename}\\Data;.\\Mods;.\\SageXml\")"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": [
+                {
+                    "owner": "cpp",
+                    "fileLocation": [
+                        "absolute"
+                    ],
+                    "source": "gcc",
+                    "pattern": {
+                        "regexp": ".*(Critical): (.+) in '(.+)'",
+                        "file": 3,
+                        "severity": 1,
+                        "message": 2
+                    }
+                },
+                {
+                    "owner": "cpp",
+                    "fileLocation": [
+                        "absolute"
+                    ],
+                    "source": "gcc",
+                    "pattern": {
+                        "regexp": ".*(Warning|Error): (Input.+) \\(referenced from file://(.+)\\)",
+                        "file": 3,
+                        "severity": 1,
+                        "message": 2
+                    },
+                },
+                {
+                    "owner": "cpp",
+                    "fileLocation": [
+                        "absolute"
+                    ],
+                    "source": "gcc",
+                    "pattern": {
+                        "regexp": ".*(Warning): (Unknown.+) in 'file://(.+)'",
+                        "file": 3,
+                        "severity": 1,
+                        "message": 2
+                    },
+                }
+            ]
+        },
+        {
+            "label": "Step 6: Merge Assets",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "(@echo off) & (cd /D \"${workspaceFolder}\\..\\..\") & (for /R \"${workspaceFolder}\\assets\" %I in (\"\") do (set assets=%~dpI & if exist \"!assets!*.asset\" (\"${workspaceFolder}\\..\\..\\tools\\assetmerge.exe\" \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod\" \"!assets:~0,-1!\")))"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Step 7: Fix Assets",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "(@echo off) & (cd /D \"${workspaceFolder}\\..\\..\") & (\"${workspaceFolder}\\..\\..\\tools\\hashfix.exe\" \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.manifest\") & (\"${workspaceFolder}\\..\\..\\tools\\modassetresolver.exe\" \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.manifest\") & (\"${workspaceFolder}\\..\\..\\tools\\lodstreambuilder.exe\" \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\\data\\mod.manifest\")"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Step 8: Copy Additional Files",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "(@echo off) & (cd /D \"${workspaceFolder}\\..\\..\") & (if exist \"${workspaceFolder}\\..\\..\\additional\" (xcopy \"${workspaceFolder}\\..\\..\\additional\" \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\" /E /H /C /I /Y)) & (if exist \"${workspaceFolder}\\additional\" (xcopy \"${workspaceFolder}\\additional\" \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\" /E /H /C /I /Y))"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Step 9: Create Big File",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "(@echo off) & (cd /D \"${workspaceFolder}\\..\\..\") & (if exist \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\" (\"${workspaceFolder}\\..\\..\\tools\\makebig.exe\" -f \"${workspaceFolder}\\..\\..\\builtmods\\mods\\${workspaceFolderBasename}\" -x:*.asset -o:\"%USERPROFILE%\\Documents\\Red Alert 3\\Mods\\${workspaceFolderBasename}\\${workspaceFolderBasename}_${config:modVersion}.big\"))"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Step 10: Create Skudef File",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "(@echo off) & (cd /D \"%USERPROFILE%\\Documents\\Red Alert 3\\Mods\\${workspaceFolderBasename}\") & (if exist \"%USERPROFILE%\\Documents\\Red Alert 3\\Mods\\${workspaceFolderBasename}\\${workspaceFolderBasename}_${config:modVersion}.skudef\" (del \"%USERPROFILE%\\Documents\\Red Alert 3\\Mods\\${workspaceFolderBasename}\\${workspaceFolderBasename}_${config:modVersion}.skudef\" /F /Q)) & (echo mod-game 1.12>\"${workspaceFolderBasename}_${config:modVersion}.skudef\") & (if exist \"%USERPROFILE%\\Documents\\Red Alert 3\\Mods\\${workspaceFolderBasename}\\${workspaceFolderBasename}_${config:modVersion}.big\" (echo add-big ${workspaceFolderBasename}_${config:modVersion}.big>>\"${workspaceFolderBasename}_${config:modVersion}.skudef\"))"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        // 编译命令
+        {
+            "label": "Build All",
+            "dependsOn": [
+                "Step 1: Clear Built Mod",
+                "Step 3: Build AptUI",
+                "Step 4: Build Global Data",
+                "Step 5: Build Basic Data",
+                "Step 6: Merge Assets",
+                "Step 7: Fix Assets",
+                "Step 8: Copy Additional Files",
+                "Step 9: Create Big File",
+                "Step 10: Create Skudef File"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Clear & Build All",
+            "dependsOn": [
+                "Step 1: Clear Built Mod",
+                "Step 2: Clear Cache",
+                "Step 3: Build AptUI",
+                "Step 4: Build Global Data",
+                "Step 5: Build Basic Data",
+                "Step 6: Merge Assets",
+                "Step 7: Fix Assets",
+                "Step 8: Copy Additional Files",
+                "Step 9: Create Big File",
+                "Step 10: Create Skudef File"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Basic XML Only",
+            "dependsOn": [
+                "Step 4: Build Global Data",
+                "Step 5: Build Basic Data",
+                "Step 6: Merge Assets",
+                "Step 7: Fix Assets",
+                "Step 8: Copy Additional Files",
+                "Step 9: Create Big File",
+                "Step 10: Create Skudef File"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+            },
+            "problemMatcher": []
+        },
+        // 启动命令
+        {
+            "label": "Build and Launch",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "start \"\" \"${config:GamePath}\\Data\\ra3_1.12.game\" -config \"${config:GamePath}\\RA3_english_1.12.SkuDef\" -modConfig \"${env:USERPROFILE}\\Documents\\Red Alert 3\\Mods\\${workspaceFolderBasename}\\${workspaceFolderBasename}_${config:modVersion}.skudef\" ${config:extraArgs}"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": [],
+            "dependsOn": [
+                "Build All"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Clear, Build and Launch",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "start \"\" \"${config:GamePath}\\Data\\ra3_1.12.game\" -config \"${config:GamePath}\\RA3_english_1.12.SkuDef\" -modConfig \"${env:USERPROFILE}\\Documents\\Red Alert 3\\Mods\\${workspaceFolderBasename}\\${workspaceFolderBasename}_${config:modVersion}.skudef\" ${config:extraArgs}"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": [],
+            "dependsOn": [
+                "Clear & Build All"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Build Basic XML and Launch",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "start \"\" \"${config:GamePath}\\Data\\ra3_1.12.game\" -config \"${config:GamePath}\\RA3_english_1.12.SkuDef\" -modConfig \"${env:USERPROFILE}\\Documents\\Red Alert 3\\Mods\\${workspaceFolderBasename}\\${workspaceFolderBasename}_${config:modVersion}.skudef\" ${config:extraArgs}"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": [],
+            "dependsOn": [
+                "Build Basic XML Only"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Direct Launch",
+            "type": "shell",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "start \"\" \"${config:GamePath}\\Data\\ra3_1.12.game\" -config \"${config:GamePath}\\RA3_english_1.12.SkuDef\" -modConfig \"${env:USERPROFILE}\\Documents\\Red Alert 3\\Mods\\${workspaceFolderBasename}\\${workspaceFolderBasename}_${config:modVersion}.skudef\" ${config:extraArgs}"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/C"
+                    ]
+                }
+            },
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}

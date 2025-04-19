@@ -1,0 +1,5 @@
+{
+    "modVersion": "1.0",                                            // 修改为当前的mod版本
+    "GamePath": "D:\\Games\\RA3\\Command and Conquer Red Alert 3",  // 修改为自己的RA3安装路径
+    "extraArgs": "-win -xres 1920 -yres 1080"                       // 额外的启动命令（窗口化）
+}

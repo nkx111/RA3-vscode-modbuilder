@@ -1,0 +1,51 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "编译并启动", 
+        "type": "cppvsdbg",
+        "request": "launch",
+        "program": "cmd.exe",
+        "args": ["/C", "exit"],
+        "cwd": "${config:GamePath}",
+        "preLaunchTask": "Build and Launch",
+        "console": "internalConsole",
+        "stopAtEntry": false   
+      },
+      {
+        "name": "清理、编译并启动",  
+        "type": "cppvsdbg",
+        "request": "launch",
+        "program": "cmd.exe",
+        "args": ["/C", "exit"],
+        "cwd": "${config:GamePath}",
+        "preLaunchTask": "Clear, Build and Launch",
+        "console": "internalConsole",
+        "stopAtEntry": false   
+      },
+      {
+        "name": "编译选项：45678910", 
+        "type": "cppvsdbg",
+        "request": "launch",
+        "program": "cmd.exe",
+        "args": ["/C", "exit"],
+        "cwd": "${config:GamePath}",
+        "preLaunchTask": "Build Basic XML and Launch",
+        "console": "internalConsole",
+        "stopAtEntry": false   
+      },
+      {
+        "name": "直接启动",
+        "type": "cppvsdbg",
+        "request": "launch",
+        "program": "cmd.exe",
+        "args": ["/C", "exit"],
+        "cwd": "${config:GamePath}",
+        "preLaunchTask": "Direct Launch",
+        "console": "internalConsole",       
+        "stopAtEntry": false 
+      }
+
+
+    ]
+  }
